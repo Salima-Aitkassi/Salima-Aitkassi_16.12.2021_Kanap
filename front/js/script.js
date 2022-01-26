@@ -47,11 +47,4 @@ function displayProduct(product) {
 
 
 
-/*function createElem(tagDom, addClass) {
-    let domElem = document.createElement(tagDom);
-    if (typeof addClass !== 'undefined') {
-        domElem.setAttribute("class", addClass);
-    }
-    return domElem;
 
-}*/

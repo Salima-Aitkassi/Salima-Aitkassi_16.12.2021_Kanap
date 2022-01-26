@@ -44,16 +44,11 @@ function displayProduct(product) {
 document.getElementById("addToCart").addEventListener("click", addToCart)
 
 function addToCart() {
-    monStorage = localStorage
-    //monStorage.clear()
+
     const quantity = parseInt(document.getElementById("quantity").value)
     const color = document.getElementById("colors").value
-    var cart = monStorage.getItem("panier")
-    const newProduct = [id, color, quantity]
-
-
-
-
+    var cart = localStorage.getItem("panier")
+    const newProduct = { id: id, color: color, quantity: quantity }
 
 
     if (cart === null) {
@@ -66,9 +61,9 @@ function addToCart() {
 
         var exist = false
         cart.forEach(function (product) {
-            if (product[0] === id && product[1] === color) {
+            if (product.id === id && product.color === color) {
                 exist = true
-                product[2] = quantity + product[2]
+                product.quantity += quantity
             }
         })
         if (exist === false) {
@@ -78,5 +73,5 @@ function addToCart() {
     console.log(cart)
 
 
-    monStorage.setItem("panier", JSON.stringify(cart));
+    localStorage.setItem("panier", JSON.stringify(cart));
 }
