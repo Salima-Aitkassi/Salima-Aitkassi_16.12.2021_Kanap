@@ -6,46 +6,147 @@
 // appel à l'api pour recup chaque produit a partir de son id cf product.js 
 
 let productsInLocalStorage = JSON.parse(localStorage.getItem("panier"))
-console.log(productsInLocalStorage)
+//console.log(productsInLocalStorage)
 
 const productsInCart = document.querySelector(".cartAndFormContainer")
 
 if (productsInLocalStorage === null) {
 }
 
-//const panierVide = document.getElementById("cart__items")
+var totalProductsQuantity = 0
+var totalProductsPrice = 0
+
 
 productsInLocalStorage.forEach(productInStorage => {
-    fetch("http://localhost:3000/api/products/" + productInStorage.id)
+
+
+    var product = fetch("http://localhost:3000/api/products/" + productInStorage.id)
         .then(function (res) {
             if (res.ok) {
                 return res.json();
             }
         })
         .then(function (product) {
-            displayProduct(product, productInStorage)
+            const sectionCartItems = document.getElementById("cart__items")
+
+            const article = generateArticleHtml(product, productInStorage)
+            sectionCartItems.appendChild(article)
+
+            totalProductsQuantity += productInStorage.quantity
+            totalProductsPrice += product.price * productInStorage.quantity
+
+            document.getElementById("totalQuantity").textContent = totalProductsQuantity
+            document.getElementById("totalPrice").textContent = totalProductsPrice
+
 
 
         })
         .catch(function (err) {
             console.log(err)
         });
+    console.log(product)
+
 });
 
-function displayProduct(product, productInStorage) {
 
-    console.log(productInStorage)
-    console.log(product)
+console.log(totalProductsQuantity)
+console.log(totalProductsPrice)
+
+
+
+
+function generateArticleHtml(product, productInStorage) {
+
+    //console.log(productInStorage.cart__item)
+    //console.log(product)
 
     const article = document.createElement("article")
     article.classList.add("cart__item")
+    article.setAttribute("data-id", product._id)
+    article.setAttribute("data-color", productInStorage.color)
     article.textContent = productInStorage.cart__item
 
+
+    const divCartItemImg = document.createElement("div")
+    divCartItemImg.classList.add("cart__item__img")
+
+
     const img = document.createElement("img")
-    img.setAttribute("src", product.imageUrl)
+    img.src = product.imageUrl
     img.setAttribute("alt", product.altTxt)
 
-    const h2 = document.createElement("h2")
+
+    const divCartItemContent = document.createElement("div")
+    divCartItemContent.classList.add("cart__item__content")
+
+    const divCartItemContentDescription = document.createElement("div")
+    divCartItemContentDescription.classList.add("cart__item__content__description")
+
+    const h2ProductName = document.createElement("h2")
+    h2ProductName.textContent = product.name
+
+    const pProductColor = document.createElement("p")
+    pProductColor.textContent = productInStorage.color
+
+    const pProductPrice = document.createElement("p")
+    pProductPrice.textContent = product.price + " €"
 
 
+    const divCartItemContentSettings = document.createElement("div")
+    divCartItemContentSettings.classList.add("cart__item__content__settings")
+
+    const divCartItemContentSettingsQuantity = document.createElement("div")
+    divCartItemContentSettingsQuantity.classList.add("cart__item__content__settings__quantity")
+
+    const pProductQuantity = document.createElement("p")
+    pProductQuantity.textContent = "Qté : "
+
+    const inputProductQuantity = document.createElement("input")
+    inputProductQuantity.classList.add("itemQuantity")
+    inputProductQuantity.name = "itemQuantity"
+    inputProductQuantity.type = "number"
+    inputProductQuantity.value = productInStorage.quantity
+    inputProductQuantity.setAttribute("min", 1)
+    inputProductQuantity.setAttribute("max", 100)
+
+    const divCartItemContentSettingsDelete = document.createElement("div")
+    divCartItemContentSettingsDelete.classList.add("cart__item__content__setting__delete")
+
+    const pDeleteProduct = document.createElement("p")
+    pDeleteProduct.classList.add("deleteItem")
+    pDeleteProduct.textContent = "Supprimer"
+
+
+
+
+    divCartItemContentSettingsDelete.appendChild(pDeleteProduct)
+
+    divCartItemContentSettingsQuantity.appendChild(pProductQuantity)
+    divCartItemContentSettingsQuantity.appendChild(inputProductQuantity)
+
+    divCartItemContentSettings.appendChild(divCartItemContentSettingsQuantity)
+    divCartItemContentSettings.appendChild(divCartItemContentSettingsDelete)
+
+    divCartItemContentDescription.appendChild(h2ProductName)
+    divCartItemContentDescription.appendChild(pProductColor)
+    divCartItemContentDescription.appendChild(pProductPrice)
+
+    divCartItemContent.appendChild(divCartItemContentDescription)
+    divCartItemContent.appendChild(divCartItemContentSettings)
+
+    divCartItemImg.appendChild(img)
+
+    article.appendChild(divCartItemImg)
+    article.appendChild(divCartItemContent)
+
+    //article.appendChild(divCartItemContentSettings)
+
+    return article
 }
+
+const inputQuantity = document.querySelector("input")
+console.log(inputQuantity)
+
+inputQuantity.addEventListener('change', modifyQuantityInCart)
+
+function modifyQuantityInCart() { }
