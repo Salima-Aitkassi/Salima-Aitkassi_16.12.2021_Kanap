@@ -109,6 +109,11 @@ function generateArticleHtml(product, productInStorage) {
     inputProductQuantity.setAttribute("min", 1)
     inputProductQuantity.setAttribute("max", 100)
 
+    inputProductQuantity.addEventListener('change', event => {
+        modifyQuantityInCart(event)
+    })
+
+
     const divCartItemContentSettingsDelete = document.createElement("div")
     divCartItemContentSettingsDelete.classList.add("cart__item__content__setting__delete")
 
@@ -144,9 +149,25 @@ function generateArticleHtml(product, productInStorage) {
     return article
 }
 
-const inputQuantity = document.querySelector("input")
-console.log(inputQuantity)
+function modifyQuantityInCart(event) {
+    console.log(event.target)
 
-inputQuantity.addEventListener('change', modifyQuantityInCart)
+    let inputQuantity = event.target
+    let articleProduct = inputQuantity.closest(".cart__item")
+    let idProduct = articleProduct.getAttribute("data-id")
+    let colorProduct = articleProduct.getAttribute("data-color")
 
-function modifyQuantityInCart() { }
+    console.log(articleProduct)
+    console.log(idProduct)
+    console.log(colorProduct)
+
+    let panier = JSON.parse(localStorage.getItem("panier"))
+
+    panier.forEach(product => {
+        if (product.id == idProduct && product.color == colorProduct) {
+            product.quantity = parseInt(inputQuantity.value)
+        }
+    })
+    localStorage.setItem("panier", JSON.stringify(panier))
+    location.reload()
+}
