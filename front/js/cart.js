@@ -9,6 +9,9 @@ let productsInLocalStorage = JSON.parse(localStorage.getItem("panier"))
 //console.log(productsInLocalStorage)
 
 const productsInCart = document.querySelector(".cartAndFormContainer")
+const orderButton = document.getElementsById("order")
+orderButton.addEventListener('click', (event) => { submitOrder(event) })
+
 
 if (productsInLocalStorage === null) {
 }
@@ -121,6 +124,7 @@ function generateArticleHtml(product, productInStorage) {
     pDeleteProduct.classList.add("deleteItem")
     pDeleteProduct.textContent = "Supprimer"
 
+    pDeleteProduct.addEventListener('click', (event) => { deleteItemLine(event) })
 
 
 
@@ -150,16 +154,16 @@ function generateArticleHtml(product, productInStorage) {
 }
 
 function modifyQuantityInCart(event) {
-    console.log(event.target)
+    //console.log(event.target)
 
     let inputQuantity = event.target
     let articleProduct = inputQuantity.closest(".cart__item")
     let idProduct = articleProduct.getAttribute("data-id")
     let colorProduct = articleProduct.getAttribute("data-color")
 
-    console.log(articleProduct)
-    console.log(idProduct)
-    console.log(colorProduct)
+    // console.log(articleProduct)
+    //  console.log(idProduct)
+    //console.log(colorProduct)
 
     let panier = JSON.parse(localStorage.getItem("panier"))
 
@@ -170,4 +174,42 @@ function modifyQuantityInCart(event) {
     })
     localStorage.setItem("panier", JSON.stringify(panier))
     location.reload()
+}
+
+function deleteItemLine(event) {
+    //console.log(event.target)
+    let articleProduct = event.target.closest(".cart__item")
+    let idProduct = articleProduct.getAttribute("data-id")
+    let colorProduct = articleProduct.getAttribute("data-color")
+    let panier = JSON.parse(localStorage.getItem("panier"))
+
+    //console.log(panier[0])
+
+    for (var i = 0; i < panier.length; i++) {
+        var product = panier[i]
+        console.log(product)
+
+        if (product.id == idProduct && product.color == colorProduct) {
+            panier.splice(i--, 1)
+        }
+    }
+    localStorage.setItem("panier", JSON.stringify(panier))
+    location.reload()
+}
+function submitOrder(event) {
+    //Recuperer le storage pr les produit 
+
+    //recup les infos du formulaire (get elmt by id) utiliser .value
+
+    // verif champs email
+
+    // pr chaque champs verifier quer la valeur n 'est pas vide , dans le cas contraire afficher une alerte
+    // utiliser return pr verifier si erreur
+
+    var json = []
+    json["contact"] = {
+        firstName /*(clé)*/: firstName,/*(variable que je vais declarer )*/
+
+    }
+
 }
