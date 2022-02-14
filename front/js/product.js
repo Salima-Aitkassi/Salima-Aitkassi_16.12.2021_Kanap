@@ -1,3 +1,5 @@
+//------------- Recuperation' et affichage des produits sur la page produit ------------
+
 var url = new URL(window.location.href)
 var id = url.searchParams.get("id")
 
@@ -42,6 +44,11 @@ function displayProduct(product) {
 
 }
 document.getElementById("addToCart").addEventListener("click", addToCart)
+
+
+
+// ---------- ajout de produits au panier -----------
+
 
 function addToCart() {
 

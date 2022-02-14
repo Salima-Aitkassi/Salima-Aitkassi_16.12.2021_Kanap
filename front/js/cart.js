@@ -5,11 +5,12 @@
 //foreach sur le panier pour chaque produit avec lid sauvegardé dans la session 
 // appel à l'api pour recup chaque produit a partir de son id cf product.js 
 
-let productsInLocalStorage = JSON.parse(localStorage.getItem("panier"))
+productsInLocalStorage = JSON.parse(localStorage.getItem("panier"))
 //console.log(productsInLocalStorage)
 
 const productsInCart = document.querySelector(".cartAndFormContainer")
-const orderButton = document.getElementsById("order")
+const orderButton = document.getElementById("order")
+//console.log(orderButton)
 orderButton.addEventListener('click', (event) => { submitOrder(event) })
 
 
@@ -56,12 +57,12 @@ console.log(totalProductsQuantity)
 console.log(totalProductsPrice)
 
 
-
+// -------------- Affichage des articles dans le panier  ------------
 
 function generateArticleHtml(product, productInStorage) {
 
     //console.log(productInStorage.cart__item)
-    //console.log(product)
+    //console.log(product) 
 
     const article = document.createElement("article")
     article.classList.add("cart__item")
@@ -72,7 +73,6 @@ function generateArticleHtml(product, productInStorage) {
 
     const divCartItemImg = document.createElement("div")
     divCartItemImg.classList.add("cart__item__img")
-
 
     const img = document.createElement("img")
     img.src = product.imageUrl
@@ -152,6 +152,7 @@ function generateArticleHtml(product, productInStorage) {
 
     return article
 }
+// --------------- Modifier la quantité ---------------------
 
 function modifyQuantityInCart(event) {
     //console.log(event.target)
@@ -176,6 +177,8 @@ function modifyQuantityInCart(event) {
     location.reload()
 }
 
+// ------------------- Supprimer un article -------------------
+
 function deleteItemLine(event) {
     //console.log(event.target)
     let articleProduct = event.target.closest(".cart__item")
@@ -196,7 +199,11 @@ function deleteItemLine(event) {
     localStorage.setItem("panier", JSON.stringify(panier))
     location.reload()
 }
+
+//----------- Passer la commande ----------------------
+
 function submitOrder(event) {
+    event.preventDefault()
     //Recuperer le storage pr les produit 
 
     //recup les infos du formulaire (get elmt by id) utiliser .value
@@ -206,10 +213,101 @@ function submitOrder(event) {
     // pr chaque champs verifier quer la valeur n 'est pas vide , dans le cas contraire afficher une alerte
     // utiliser return pr verifier si erreur
 
-    var json = []
-    json["contact"] = {
-        firstName /*(clé)*/: firstName,/*(variable que je vais declarer )*/
+    productInLocalStorage = JSON.parse(localStorage.getItem("panier"))
 
+
+    const firstName = document.getElementById("firstName").value
+    const lastName = document.getElementById("lastName").value
+    const address = document.getElementById("address").value
+    const city = document.getElementById("city").value
+    const email = document.getElementById("email").value
+
+
+    const formIsValid = verificationForm(firstName, lastName, address, city, email)
+
+    if (formIsValid == false) {
+        return
     }
 
+
+    var formulaireContact =
+    {
+        prenom: firstName,
+        nom: lastName,
+        address: address,
+        ville: city,
+        email: email
+    }
+    console.log(formulaireContact)
+
+    var json = []
+    json["contact"] = formulaireContact
+    json["products"] = productsInLocalStorage
+
+
+    var order = fetch("http://localhost:3000/api/order", { method: "POST", body: json })
+        .then(function (res) {
+            /*        if (res.ok) {
+                        return res.json();
+                    }*/
+            console.log(res)
+        })
+        .then(function (order) {
+            console.log(order)
+
+
+        })
+        .catch(function (err) {
+            console.log(err)
+        });
+
+}
+
+// -------------------- verification des champs du formulaire ------------------- 
+
+function verificationForm(firstName, lastName, address, city, email) {
+    if (firstName == "") {
+        document.getElementById("firstNameErrorMsg").textContent = "veuillez saisir ce champ"
+        return false
+    }
+    if (lastName == "") {
+        document.getElementById("lastNameErrorMsg").textContent = "veuillez saisir ce champ"
+        return false
+
+    }
+    if (address == "") {
+        document.getElementById("addressErrorMsg").textContent = "veuillez saisir ce champ"
+    }
+    if (city == "") {
+        document.getElementById("cityErrorMsg").textContent = "veillez saisir ce champ"
+    }
+    if (email == "") {
+        document.getElementById("emailErrorMsg").textContent = "veuillez saisir ce champ"
+        return false;
+    }
+
+    // ----------- regex email ------------------
+
+    var validRegexEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+    // console.log(mail.match(validRegex))
+
+    if (email.match(validRegexEmail) == null) {
+        //    console.log(mail)
+
+
+        document.getElementById("emailErrorMsg").textContent = "adresse email invalide"
+        return false
+    }
+    return true;
+}
+// -------- regex champs nom/prénom ---------------
+
+
+function validateNameForm() {
+    var re = /^[A-Za-z]+$/
+    if (re.test(document.getElementById("textboxID").value))
+        alert('Valid Name.')
+    else
+        alert('Invalid Name.')
 }

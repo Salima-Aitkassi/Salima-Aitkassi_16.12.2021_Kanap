@@ -1,3 +1,4 @@
+// ---------------- Récuperation des produits depuis l'Api -------------
 fetch("http://localhost:3000/api/products")
     .then(function (res) {
         if (res.ok) {
@@ -13,6 +14,7 @@ fetch("http://localhost:3000/api/products")
     .catch(function (err) {
         console.log(err)
     });
+// -------------- Affichage des produits sur la page d'accueil ------------------s
 
 function displayProduct(product) {
     const a = document.createElement("a")
