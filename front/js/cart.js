@@ -11,7 +11,11 @@ productsInLocalStorage = JSON.parse(localStorage.getItem("panier"))
 const productsInCart = document.querySelector(".cartAndFormContainer")
 const orderButton = document.getElementById("order")
 //console.log(orderButton)
-orderButton.addEventListener('click', (event) => { submitOrder(event) })
+orderButton.addEventListener('click', (event) => {
+    submitOrder(event)
+
+})
+
 
 
 if (productsInLocalStorage === null) {
@@ -223,7 +227,7 @@ function submitOrder(event) {
     const email = document.getElementById("email").value
 
 
-    const formIsValid = verificationForm(firstName, lastName, address, city, email)
+    const formIsValid = verificationForm()
 
     if (formIsValid == false) {
         return
@@ -236,78 +240,84 @@ function submitOrder(event) {
         nom: lastName,
         address: address,
         ville: city,
-        email: email
+        email: email,
     }
-    console.log(formulaireContact)
+    //console.log(formulaireContact)
 
     var json = []
     json["contact"] = formulaireContact
-    json["products"] = productsInLocalStorage
+
+    var productsId = []
+    productInLocalStorage.forEach(function (product) {
+        productsId.push(product.id)
+    })
+    json["products"] = productsId
+    //console.log(json)
 
 
-    var order = fetch("http://localhost:3000/api/order", { method: "POST", body: json })
+
+    var order = fetch("http://localhost:3000/api/products/order", { method: "POST", body: json, headers: {} })
         .then(function (res) {
-            /*        if (res.ok) {
-                        return res.json();
-                    }*/
+            if (res.ok) {
+                return res.json();
+            }
             console.log(res)
         })
         .then(function (order) {
-            console.log(order)
+            //console.log(order)
 
 
         })
         .catch(function (err) {
             console.log(err)
         });
-
+    console.log(order)
 }
 
 // -------------------- verification des champs du formulaire ------------------- 
 
-function verificationForm(firstName, lastName, address, city, email) {
-    if (firstName == "") {
-        document.getElementById("firstNameErrorMsg").textContent = "veuillez saisir ce champ"
-        return false
-    }
-    if (lastName == "") {
-        document.getElementById("lastNameErrorMsg").textContent = "veuillez saisir ce champ"
-        return false
+function verificationForm() {
 
-    }
-    if (address == "") {
-        document.getElementById("addressErrorMsg").textContent = "veuillez saisir ce champ"
-    }
-    if (city == "") {
-        document.getElementById("cityErrorMsg").textContent = "veillez saisir ce champ"
-    }
-    if (email == "") {
-        document.getElementById("emailErrorMsg").textContent = "veuillez saisir ce champ"
-        return false;
-    }
+    const formFields = [
+        "firstName",
+        "lastName",
+        "address",
+        "city",
+        "email"
 
-    // ----------- regex email ------------------
+    ]
 
-    var validRegexEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
-    // console.log(mail.match(validRegex))
-
-    if (email.match(validRegexEmail) == null) {
-        //    console.log(mail)
+    // var regexName = /^[A-ZàáâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸa-z\s\-]+$/
 
 
-        document.getElementById("emailErrorMsg").textContent = "adresse email invalide"
-        return false
-    }
-    return true;
-}
-// -------- regex champs nom/prénom ---------------
+    formFields.forEach(function (filedName) {
+        var filedValue = document.getElementById(filedName).value
+        if (filedValue == "") {
+            document.getElementById(filedName + "ErrorMsg").textContent = "veuillez saisir ce champ"
+            return false
 
+        }
+        // -------- regex champs nom/prénom ---------------
 
-function validateNameForm() {
-    var re = /^[A-Za-z]+$/
-    if (re.test(document.getElementById("textboxID").value))
-        alert('Valid Name.')
-    else
-        alert('Invalid Name.')
+        if (filedName == "firstName" || filedName == "lastName") {
+            var regex = /^[A-ZàáâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸa-z\s\-]+$/
+
+        }
+        // ----------- regex email ----------------------------
+
+        else if (filedName == "email") {
+            var regex = /^[a-zA-Z0-9.+_-]+[@][a-zA-Z0-9-._]+[.][a-zA-Z]+$/
+        }
+        // -------- regex city address ---------------
+
+        else {
+            var regex = /^[A-ZàáâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸa-z0-9\s\-]+$/
+        }
+        if (filedValue.match(regex) == null) {
+            document.getElementById(filedName + "ErrorMsg").textContent = " Champ invalide "
+            return false
+        }
+
+    })
+    return true
 }
