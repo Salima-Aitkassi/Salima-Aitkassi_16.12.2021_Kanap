@@ -5,6 +5,10 @@
 //foreach sur le panier pour chaque produit avec lid sauvegardé dans la session 
 // appel à l'api pour recup chaque produit a partir de son id cf product.js 
 
+
+
+
+//------- Recuperation du panier ------------------------
 productsInLocalStorage = JSON.parse(localStorage.getItem("panier"))
 //console.log(productsInLocalStorage)
 
@@ -23,6 +27,8 @@ if (productsInLocalStorage === null) {
 
 var totalProductsQuantity = 0
 var totalProductsPrice = 0
+
+
 
 
 productsInLocalStorage.forEach(productInStorage => {
@@ -60,8 +66,8 @@ productsInLocalStorage.forEach(productInStorage => {
 console.log(totalProductsQuantity)
 console.log(totalProductsPrice)
 
-
 // -------------- Affichage des articles dans le panier  ------------
+
 
 function generateArticleHtml(product, productInStorage) {
 
@@ -152,8 +158,6 @@ function generateArticleHtml(product, productInStorage) {
     article.appendChild(divCartItemImg)
     article.appendChild(divCartItemContent)
 
-    //article.appendChild(divCartItemContentSettings)
-
     return article
 }
 // --------------- Modifier la quantité ---------------------
@@ -208,14 +212,6 @@ function deleteItemLine(event) {
 
 function submitOrder(event) {
     event.preventDefault()
-    //Recuperer le storage pr les produit 
-
-    //recup les infos du formulaire (get elmt by id) utiliser .value
-
-    // verif champs email
-
-    // pr chaque champs verifier quer la valeur n 'est pas vide , dans le cas contraire afficher une alerte
-    // utiliser return pr verifier si erreur
 
     productInLocalStorage = JSON.parse(localStorage.getItem("panier"))
 
@@ -233,48 +229,59 @@ function submitOrder(event) {
         return
     }
 
+    //------------------- envoi du formulaire vers le serveur -----------------------
 
     var formulaireContact =
     {
-        prenom: firstName,
-        nom: lastName,
+        firstName: firstName,
+        lastName: lastName,
         address: address,
-        ville: city,
+        city: city,
         email: email,
     }
     //console.log(formulaireContact)
-
-    var json = []
-    json["contact"] = formulaireContact
 
     var productsId = []
     productInLocalStorage.forEach(function (product) {
         productsId.push(product.id)
     })
-    json["products"] = productsId
-    //console.log(json)
+
+    let infos = { contact: formulaireContact, products: productsId }
 
 
+    var order = fetch("http://localhost:3000/api/products/order", {
+        method: "POST", body: JSON.stringify(infos),
+        headers: {
+            "Content-Type": "application/json"
+        }
 
-    var order = fetch("http://localhost:3000/api/products/order", { method: "POST", body: json, headers: {} })
+
+    })
         .then(function (res) {
             if (res.ok) {
                 return res.json();
             }
-            console.log(res)
+
         })
-        .then(function (order) {
-            //console.log(order)
+        .then((data) => {
+            console.log(data)
+
+            //------- Cleaner le panier apres validation de la commande-----
+            sessionStorage.removeItem("panier")
+
+            // ____ Redirection vers la page de confirmation de la commande ------
+            document.location.href = "confirmation.html?id=" + data.orderId
 
 
         })
         .catch(function (err) {
             console.log(err)
         });
-    console.log(order)
+
 }
 
-// -------------------- verification des champs du formulaire ------------------- 
+
+// -------------------- vérification des champs du formulaire ------------------- 
 
 function verificationForm() {
 
@@ -289,18 +296,21 @@ function verificationForm() {
 
     // var regexName = /^[A-ZàáâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸa-z\s\-]+$/
 
+    var verificationFormulaire = true
 
     formFields.forEach(function (filedName) {
         var filedValue = document.getElementById(filedName).value
+        document.getElementById(filedName + "ErrorMsg").textContent = ""
+
         if (filedValue == "") {
             document.getElementById(filedName + "ErrorMsg").textContent = "veuillez saisir ce champ"
-            return false
+            verificationFormulaire = false
 
         }
         // -------- regex champs nom/prénom ---------------
 
         if (filedName == "firstName" || filedName == "lastName") {
-            var regex = /^[A-ZàáâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸa-z\s\-]+$/
+            var regex = /^[A-Zà-Ÿa-z\s\-]+$/
 
         }
         // ----------- regex email ----------------------------
@@ -311,13 +321,13 @@ function verificationForm() {
         // -------- regex city address ---------------
 
         else {
-            var regex = /^[A-ZàáâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸa-z0-9\s\-]+$/
+            var regex = /^[A-Zà-Ÿa-z0-9\s\-]+$/
         }
         if (filedValue.match(regex) == null) {
             document.getElementById(filedName + "ErrorMsg").textContent = " Champ invalide "
-            return false
+            verificationFormulaire = false
         }
 
     })
-    return true
+    return verificationFormulaire
 }
