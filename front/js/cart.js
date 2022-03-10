@@ -257,7 +257,7 @@ function submitOrder(event) {
             console.log(data)
 
             //------- Cleaner le panier apres validation de la commande-----
-            sessionStorage.removeItem("panier")
+            localStorage.removeItem("panier")
 
             // ____ Redirection vers la page de confirmation de la commande ------
             document.location.href = "confirmation.html?id=" + data.orderId
